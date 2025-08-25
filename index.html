@@ -83,8 +83,7 @@ input, select, textarea { outline: none; }
 
             <h3 class="card-header mt-4">Term-wise Circular Progress</h3>
             <div id="termChartsWrap" class="chart-container"></div>
-<h3 class="card-header mt-4">Attendance</h3>
-<div id="attendanceChartWrap" class="chart-container"></div>
+
 
             <h3 class="card-header mt-4">Remarks / Complaints</h3>
             <textarea id="ppRemarks" class="border rounded-lg px-3 py-2 w-full" placeholder="Remarks / Complaints" readonly></textarea>
@@ -308,43 +307,11 @@ document.getElementById('deleteStudent').addEventListener('click', () => {
     // Clear input
     document.getElementById('studentId').value = '';
 });
- // --- Attendance Chart ---
-    const attWrap = document.getElementById("attendanceChartWrap");
-    attWrap.innerHTML = "";
-    const att = attendanceData[gr] || 0;
-    const attDiv = document.createElement("div");
-    attDiv.className = "chart-card card";
-    const attCanvas = document.createElement("canvas");
-    attDiv.appendChild(attCanvas);
-    const attLabel = document.createElement("span");
-    attLabel.textContent = "Attendance";
-    attLabel.className = "mt-2 font-semibold";
-    attDiv.appendChild(attLabel);
-    attWrap.appendChild(attDiv);
 
-    new Chart(attCanvas, {
-        type: 'doughnut',
-        plugins: [ChartDataLabels],
-        data: {
-            labels: ['Present','Absent'],
-            datasets: [{ data:[att,100-att], backgroundColor:['#16a34a','#d1d5db'], borderWidth:0 }]
-        },
-        options: {
-            responsive: false,
-            cutout: '75%',
-            plugins: {
-                datalabels: { color:'#000', font:{size:22,weight:'bold'}, formatter:(v)=>v+'%' },
-                legend: { display:false }
-            }
-        }
-    });
-
-    // --- Remarks ---
-    document.getElementById("ppRemarks").value = remarksData[gr] || "";
-}
 
 </script>
 </body>
 </html>
+
 
 
