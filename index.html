@@ -135,7 +135,24 @@ input, select, textarea { outline: none; }
 </section>
 
 <script>
-      
+      async function loadCIDData() {
+  const url = "https://raw.githubusercontent.com/hassaninrada/Nasra-voting/Student%20Secondary.html/main/cidlist.json";
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.error("Failed to fetch JSON:", response.status);
+      return [];
+    }
+    const data = await response.json();
+    return data.allowedCidnos || [];
+  } catch (err) {
+    console.error("Error loading CID data:", err);
+    return [];
+  }
+}
+
+async function validateCID() {
+  const inputCID = document.getElementById("cidInput").value.trim();
 // --- All previous JS logic (studentsData, marksData, teacher login, parent search, displayStudent, etc.) remains unchanged ---
 const teacherPassword="teacher123";
 let studentsData=JSON.parse(localStorage.getItem("studentsData")||"{}");
@@ -317,6 +334,7 @@ document.getElementById('deleteStudent').addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 
