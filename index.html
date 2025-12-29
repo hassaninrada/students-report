@@ -135,11 +135,7 @@ input, select, textarea { outline: none; }
 </section>
 
 <script>
-      async function loadCIDData() {
-  const response = await fetch("https://hassaninrada.github.io/Nasra-voting/");
-  const data = await response.json();
-  return data.cid_numbers;
-}
+      
 // --- All previous JS logic (studentsData, marksData, teacher login, parent search, displayStudent, etc.) remains unchanged ---
 const teacherPassword="teacher123";
 let studentsData=JSON.parse(localStorage.getItem("studentsData")||"{}");
@@ -321,6 +317,7 @@ document.getElementById('deleteStudent').addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 
