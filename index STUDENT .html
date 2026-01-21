@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nasra School — Student Report System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        body {
+            background: #f9fafb;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .fadeIn {
+            animation: fadeIn .25s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        input,
+        select,
+        textarea {
+            outline: none;
+        }
+
+        .chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+        }
+
+        .chart-card {
+            width: 280px;
+            height: 280px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen p-4">
+    <header
+        class="bg-gradient-to-r from-blue-700 to-blue-800 text-white shadow rounded-lg p-4 mb-6 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <img src="https://i-care-foundation.org/wp-content/uploads/2024/12/education-trust-nasra-schools-logo.png"
+                class="w-12 h-12 rounded-lg border-2 border-white" />
+            <div>
+                <h1 class="text-2xl font-bold">NASRA SCHOOL</h1>
+                <p class="text-xs opacity-90">Student Report Portal</p>
+            </div>
+        </div>
+        <button onclick="goHome()" class="bg-blue-600 px-3 py-1 rounded text-sm hover:bg-blue-500 transition">Portal
+            Home</button>
+    </header>
+
+    <!-- ROLE GATE -->
+    <section id="roleGate" class="max-w-4xl mx-auto p-4 fadeIn">
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="card border-t-4 border-green-500">
+                <h2 class="card-header text-green-700">Parent / Student Mode</h2>
+                <p class="text-gray-600 text-sm">Search by Name, Class, Section. Read-only access with PDF export.</p>
+                <button id="enterParent"
+                    class="mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg w-full">
+                    <i class="fa-solid fa-user"></i> Enter Parent Portal
+                </button>
+            </div>
+            <div class="card border-t-4 border-blue-500">
+                <h2 class="card-header text-blue-700">Teacher Mode</h2>
+                <p class="text-gray-600 text-sm">Manage student records, bulk upload, and input marks.</p>
+                <div class="mt-3 grid gap-2">
+                    <button id="enterTeacherPrimary"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm">Primary
+                        Wing</button>
+                    <button id="enterTeacherSecondary"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-sm">Secondary
+                        Wing</button>
+                </div>
+                <div id="passArea" class="hidden mt-3">
+                    <input type="password" id="teacherPassInput" placeholder="Enter PIN"
+                        class="border rounded-lg px-3 py-2 w-full mb-2" />
+                    <button id="submitPass" class="bg-gray-800 text-white px-3 py-2 rounded-lg w-full">Verify
+                        Identity</button>
+                    <p id="passError" class="text-red-600 text-xs mt-1 hidden">Access Denied</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PARENT PORTAL -->
+    <section id="parentPortal" class="max-w-7xl mx-auto p-4 hidden fadeIn">
+        <div class="card mb-6">
+            <h2 class="card-header text-blue-800"><i class="fa-solid fa-magnifying-glass"></i> Student Record Search
+            </h2>
+            <div class="grid md:grid-cols-4 gap-3">
+                <input id="ppName" placeholder="Student Name" class="border p-2 rounded" />
+                <input id="ppClass" placeholder="Class" class="border p-2 rounded" />
+                <input id="ppSection" placeholder="Section" class="border p-2 rounded" />
+                <button id="ppSearchBtn"
+                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-bold uppercase text-sm">Find
+                    Records</button>
+            </div>
+            <div class="mt-4">
+                <select id="ppSelectStudent" class="border p-2 rounded w-full md:w-1/2"></select>
+            </div>
+        </div>
+
+        <div id="ppResultsWrap" class="hidden fadeIn">
+            <div id="pdfContent" class="bg-white p-6 rounded-xl shadow-lg border">
+                <div class="flex justify-between items-start border-b pb-4 mb-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-blue-800">OFFICIAL STUDENT PROGRESS REPORT</h2>
+                        <div id="ppStudentMeta" class="mt-2 text-sm space-y-1"></div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="font-bold text-lg border-b mb-2">Academic Marks</h3>
+                    <div class="overflow-x-auto">
+                        <table id="ppMarksTable" class="w-full text-left text-sm">
+                            <thead>
+                                <tr class="bg-gray-100 uppercase text-xs">
+                                    <th class="p-2 border">Term</th>
+                                    <th class="p-2 border">Subject</th>
+                                    <th class="p-2 border">Obtained</th>
+                                    <th class="p-2 border">Grade</th>
+                                    <th class="p-2 border">Result</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <h3 class="font-bold border-b mb-2">Teacher's Remarks</h3>
+                        <div id="ppRemarks" class="p-3 bg-gray-50 rounded italic text-gray-700 min-h-[60px]"></div>
+                    </div>
+                    <div>
+                        <h3 class="font-bold border-b mb-2">Attendance Summary</h3>
+                        <div id="ppAttendanceDisplay" class="text-3xl font-bold text-blue-600">0%</div>
+                    </div>
+                </div>
+
+                <div id="termChartsWrap" class="flex flex-wrap gap-4 justify-center"></div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button id="ppExportPDF"
+                    class="bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 shadow-lg font-bold">
+                    <i class="fa-solid fa-file-pdf"></i> Download Official Report (PDF)
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- TEACHER PORTAL -->
+    <section id="teacherPortal" class="max-w-7xl mx-auto p-4 hidden fadeIn">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold">Dashboard: <span id="portalWingLabel" class="text-blue-600"></span></h2>
+            <button onclick="goHome()" class="bg-gray-200 px-4 py-2 rounded text-sm hover:bg-gray-300">Exit
+                Portal</button>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2">
+                <div class="card mb-6">
+                    <h3 class="card-header">Student Management</h3>
+                    <div class="grid md:grid-cols-4 gap-2 mb-4">
+                        <input id="tName" class="border rounded-lg px-3 py-2 text-sm" placeholder="Full Name" />
+                        <input id="tClass" class="border rounded-lg px-3 py-2 text-sm" placeholder="Class" />
+                        <input id="tSection" class="border rounded-lg px-3 py-2 text-sm" placeholder="Section" />
+                        <input id="tCID" class="border rounded-lg px-3 py-2 text-sm" placeholder="CID/GR Number" />
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="addStudent"
+                            class="bg-green-600 text-white px-4 py-2 rounded-lg flex-1 hover:bg-green-700"><i
+                                class="fa-solid fa-user-plus"></i> Single Add</button>
+                        <button id="deleteStudent"
+                            class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"><i
+                                class="fa-solid fa-trash"></i> Delete</button>
+                    </div>
+                </div>
+
+                <div class="card border-t-4 border-blue-600 mb-6">
+                    <h3 class="card-header text-blue-700"><i class="fa-solid fa-file-excel"></i> Bulk CSV/Excel Upload
+                    </h3>
+                    <p class="text-xs text-gray-500 mb-3">Include headers: Name, Class, Section, CID</p>
+                    <div class="flex gap-2 items-center">
+                        <input type="file" id="bulkFileInput" accept=".xlsx, .xls, .csv"
+                            class="border p-1 text-sm rounded bg-gray-50 w-full" />
+                        <button id="processBulkBtn"
+                            class="bg-blue-600 text-white px-4 py-2 rounded text-sm whitespace-nowrap">Upload
+                            All</button>
+                    </div>
+                    <div id="bulkStatus" class="mt-2 text-xs font-bold italic"></div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-header">Grading & Assessment</h3>
+                    <div class="grid md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="text-xs font-bold text-gray-500">SELECT STUDENT</label>
+                            <select id="selectStudentTeacher" class="border rounded-lg px-3 py-2 w-full"></select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500">TARGET TERM</label>
+                            <select id="selectTerm" class="border rounded-lg px-3 py-2 w-full">
+                                <option>First Term</option>
+                                <option>Mid Term</option>
+                                <option>Second Term</option>
+                                <option>Final Term</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500">SUBJECT</label>
+                            <select id="selectSubject" class="border rounded-lg px-3 py-2 w-full"></select>
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                        <input type="number" id="inputMarks" placeholder="Marks Obtained"
+                            class="border rounded-lg px-3 py-2" />
+                        <input type="number" id="inputAttendance" placeholder="Attendance %"
+                            class="border rounded-lg px-3 py-2" />
+                    </div>
+                    <textarea id="inputRemarks" class="border rounded-lg px-3 py-2 w-full mb-4"
+                        placeholder="Student performance remarks..."></textarea>
+                    <button id="saveMarks"
+                        class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 w-full font-bold">COMMIT
+                        CHANGES</button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1">
+                <div class="card h-full">
+                    <h3 class="card-header">Subject Settings</h3>
+                    <div id="subjectContainer" class="space-y-2 mb-4"></div>
+                    <button id="addSubjectBtn"
+                        class="w-full border-2 border-dashed border-purple-300 text-purple-600 py-2 rounded hover:bg-purple-50"><i
+                            class="fa-solid fa-plus"></i> Add New Subject</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script type="module">
+        import { supabase } from "./supabase-init.js";
+
+        const teacherPrimaryPass = "primary123";
+        const teacherSecondaryPass = "secondary123";
+        const teacherPassword = "teacher123";
+
+        let currentTeacherMode = "";
+        let teacherSubjects = JSON.parse(localStorage.getItem("teacherSubjects") || JSON.stringify(["English", "Math", "Science", "SST"]));
+        const termMax = { "First Term": 25, "Mid Term": 50, "Second Term": 75, "Final Term": 100 };
+
+        window.goHome = function () {
+            document.querySelectorAll("section").forEach(s => s.classList.add("hidden"));
+            document.getElementById("roleGate").classList.remove("hidden");
+            currentTeacherMode = "";
+        };
+
+        function getGradeFinal(m) { if (m >= 90) return "A+"; if (m >= 80) return "A"; if (m >= 70) return "B"; if (m >= 60) return "C"; if (m >= 50) return "D"; if (m >= 40) return "E"; return "F"; }
+        function getResultTerm(m, term) { let max = termMax[term]; return m >= 0.4 * max ? "Pass" : "Fail"; }
+
+        let pendingMode = "";
+        document.getElementById("enterTeacherPrimary").addEventListener("click", () => { pendingMode = "Primary"; showPassInput(); });
+        document.getElementById("enterTeacherSecondary").addEventListener("click", () => { pendingMode = "Secondary"; showPassInput(); });
+
+        function showPassInput() {
+            document.getElementById("passArea").classList.remove("hidden");
+            document.getElementById("teacherPassInput").value = "";
+            document.getElementById("teacherPassInput").focus();
+            document.getElementById("passError").classList.add("hidden");
+        }
+
+        document.getElementById("submitPass").addEventListener("click", () => {
+            const val = document.getElementById("teacherPassInput").value;
+            if ((pendingMode === "Primary" && val === teacherPrimaryPass) || (pendingMode === "Secondary" && val === teacherSecondaryPass) || val === teacherPassword) {
+                currentTeacherMode = pendingMode;
+                document.getElementById("portalWingLabel").textContent = currentTeacherMode;
+                document.getElementById("roleGate").classList.add("hidden");
+                document.getElementById("teacherPortal").classList.remove("hidden");
+                renderSubjects();
+                updateTeacherStudentList();
+                updateTeacherSubjectDropdown();
+            } else {
+                document.getElementById("passError").classList.remove("hidden");
+            }
+        });
+
+        // BULK UPLOAD
+        document.getElementById("processBulkBtn").addEventListener("click", async () => {
+            const file = document.getElementById("bulkFileInput").files[0];
+            const status = document.getElementById("bulkStatus");
+            if (!file) return alert("Select file");
+            status.textContent = "Processing...";
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                    const wing = currentTeacherMode || "Primary";
+                    const toInsert = jsonData.map(row => {
+                        const find = (k) => { let key = Object.keys(row).find(x => k.includes(x.toLowerCase().trim())); return key ? String(row[key]).trim() : ""; };
+                        return {
+                            name: find(["name", "student name"]), cls: find(["class", "grade"]), sec: find(["section"]), cid: find(["cid", "gr"]),
+                            wing, marks: {}, attendance: 0, remarks: "", voted_primary: false, voted_secondary: false
+                        };
+                    }).filter(s => s.cid && s.name);
+                    const { error } = await supabase.from('students').upsert(toInsert, { onConflict: 'cid' });
+                    if (error) throw error;
+                    status.textContent = "✅ Upload Successful!";
+                    updateTeacherStudentList();
+                } catch (err) { status.textContent = "❌ " + err.message; }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        function renderSubjects() {
+            const container = document.getElementById("subjectContainer"); container.innerHTML = "";
+            teacherSubjects.forEach((sub, i) => {
+                const div = document.createElement("div"); div.className = "flex items-center justify-between bg-white border p-2 rounded shadow-sm";
+                div.innerHTML = `<span>${sub}</span><button class="text-red-500 hover:text-red-700 text-sm">Remove</button>`;
+                div.querySelector("button").onclick = () => { teacherSubjects.splice(i, 1); saveSubs(); };
+                container.appendChild(div);
+            });
+        }
+        function saveSubs() { localStorage.setItem("teacherSubjects", JSON.stringify(teacherSubjects)); renderSubjects(); updateTeacherSubjectDropdown(); }
+        document.getElementById("addSubjectBtn").onclick = () => { let s = prompt("Subject Name:"); if (s) { teacherSubjects.push(s); saveSubs(); } };
+
+        document.getElementById("addStudent").onclick = async () => {
+            const data = { name: document.getElementById("tName").value, cls: document.getElementById("tClass").value, sec: document.getElementById("tSection").value, cid: document.getElementById("tCID").value, wing: currentTeacherMode, marks: {}, attendance: 0, remarks: "", voted_primary: false, voted_secondary: false };
+            if (!data.name || !data.cid) return alert("Missing Info");
+            const { error } = await supabase.from('students').insert([data]);
+            if (error) alert(error.message); else { alert("Added"); updateTeacherStudentList(); }
+        };
+
+        document.getElementById("deleteStudent").onclick = async () => {
+            if (!confirm("Delete?")) return;
+            const cid = document.getElementById("tCID").value;
+            await supabase.from('students').delete().eq('cid', cid);
+            updateTeacherStudentList();
+        };
+
+        async function updateTeacherStudentList() {
+            const { data } = await supabase.from('students').select('*').eq('wing', currentTeacherMode);
+            const sel = document.getElementById("selectStudentTeacher"); sel.innerHTML = "";
+            data?.forEach(s => { sel.innerHTML += `<option value="${s.cid}">${s.name} (${s.cid})</option>`; });
+        }
+        function updateTeacherSubjectDropdown() {
+            const sel = document.getElementById("selectSubject"); sel.innerHTML = "";
+            teacherSubjects.forEach(s => { sel.innerHTML += `<option>${s}</option>`; });
+        }
+
+        document.getElementById("saveMarks").onclick = async () => {
+            const cid = document.getElementById("selectStudentTeacher").value;
+            const res = await supabase.from('students').select('*').eq('cid', cid).single();
+            const student = res.data;
+            const sub = document.getElementById("selectSubject").value;
+            const term = document.getElementById("selectTerm").value;
+            student.marks[sub] = student.marks[sub] || {};
+            student.marks[sub][term] = Number(document.getElementById("inputMarks").value);
+            await supabase.from('students').update({ marks: student.marks, attendance: Number(document.getElementById("inputAttendance").value), remarks: document.getElementById("inputRemarks").value }).eq('cid', cid);
+            alert("Saved");
+        };
+
+        // PARENT PORTAL SEARCH
+        document.getElementById("enterParent").onclick = () => { document.getElementById("roleGate").classList.add("hidden"); document.getElementById("parentPortal").classList.remove("hidden"); };
+        document.getElementById("ppSearchBtn").onclick = async () => {
+            const name = document.getElementById("ppName").value.toLowerCase();
+            const { data } = await supabase.from('students').select('*');
+            const sel = document.getElementById("ppSelectStudent"); sel.innerHTML = "";
+            data.filter(s => s.name.toLowerCase().includes(name)).forEach(s => {
+                sel.innerHTML += `<option value="${s.cid}">${s.name} (${s.cls}-${s.sec})</option>`;
+            });
+            if (sel.value) displayStudent(sel.value);
+        };
+
+        async function displayStudent(cid) {
+            const { data: s } = await supabase.from('students').select('*').eq('cid', cid).single();
+            if (!s) return;
+            document.getElementById("ppResultsWrap").classList.remove("hidden");
+            document.getElementById("ppStudentMeta").innerHTML = `<b>Name:</b> ${s.name} | <b>Class:</b> ${s.cls} | <b>GR:</b> ${s.cid}`;
+            document.getElementById("ppRemarks").textContent = s.remarks || "No comments.";
+            document.getElementById("ppAttendanceDisplay").textContent = (s.attendance || 0) + "%";
+
+            const tbody = document.querySelector("#ppMarksTable tbody"); tbody.innerHTML = "";
+            teacherSubjects.forEach(sub => {
+                ["First Term", "Mid Term", "Second Term", "Final Term"].forEach(term => {
+                    const val = s.marks[sub]?.[term] || 0;
+                    tbody.innerHTML += `<tr class="border-b"><td>${term}</td><td>${sub}</td><td>${val}</td><td>${term === 'Final Term' ? getGradeFinal(val) : '-'}</td><td>${getResultTerm(val, term)}</td></tr>`;
+                });
+            });
+
+            const wrap = document.getElementById("termChartsWrap"); wrap.innerHTML = "";
+            ["First Term", "Mid Term", "Second Term", "Final Term"].forEach(term => {
+                const total = teacherSubjects.length * termMax[term];
+                let sum = 0; teacherSubjects.forEach(sub => sum += (s.marks[sub]?.[term] || 0));
+                const pc = total > 0 ? Math.round((sum / total) * 100) : 0;
+                const div = document.createElement("div"); div.className = "chart-card card";
+                div.innerHTML = `<canvas width="120" height="120"></canvas><p class="mt-2 text-xs font-bold">${term}</p>`;
+                wrap.appendChild(div);
+                new Chart(div.querySelector('canvas'), { type: 'doughnut', plugins: [ChartDataLabels], data: { labels: ['P', 'R'], datasets: [{ data: [pc, 100 - pc], backgroundColor: ['#3b82f6', '#e5e7eb'], borderWidth: 0 }] }, options: { cutout: '70%', plugins: { legend: { display: false }, datalabels: { formatter: () => pc + '%' } } } });
+            });
+        }
+
+        document.getElementById("ppSelectStudent").onchange = (e) => displayStudent(e.target.value);
+
+        document.getElementById("ppExportPDF").onclick = async () => {
+            const canvas = await html2canvas(document.getElementById("pdfContent"), { scale: 2 });
+            const doc = new jspdf.jsPDF('p', 'mm', 'a4');
+            const imgData = canvas.toDataURL('image/png');
+            doc.addImage(imgData, 'PNG', 0, 0, 210, 297 * (canvas.height / canvas.width));
+            doc.save('Student_Report.pdf');
+        };
+    </script>
+</body>
+
+</html>
