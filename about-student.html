@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Developer — Nasra Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        body {
+            background: #f9fafb;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .fadeIn {
+            animation: fadeIn .25s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+        }
+
+        .developer-credit {
+            position: fixed;
+            bottom: 10px;
+            right: 15px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 13px;
+            color: #aaa;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 6px 12px;
+            border-radius: 20px;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+            z-index: 9999;
+        }
+
+        .developer-credit strong {
+            color: #00ffff;
+            margin-left: 4px;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen p-4">
+    <header
+        class="bg-gradient-to-r from-blue-700 to-blue-800 text-white shadow rounded-lg p-4 mb-6 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <img src="https://i-care-foundation.org/wp-content/uploads/2024/12/education-trust-nasra-schools-logo.png"
+                class="w-12 h-12 rounded-lg border-2 border-white" />
+            <div>
+                <h1 class="text-2xl font-bold">NASRA SCHOOL</h1>
+                <p class="text-xs opacity-90">Student Report Portal</p>
+            </div>
+        </div>
+        <a href="index STUDENT .html"
+            class="bg-blue-600 px-3 py-1 rounded text-sm hover:bg-blue-500 transition text-white no-underline">
+            Back to Portal
+        </a>
+    </header>
+
+    <section class="max-w-4xl mx-auto fadeIn">
+        <div class="card relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
+
+            <div class="flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left">
+                <!-- Profile Image -->
+                <div class="shrink-0 relative">
+                    <div class="w-48 h-48 rounded-full border-4 border-blue-100 overflow-hidden shadow-lg">
+                        <img src="c:\Users\Lenovo-pc\OneDrive\Desktop\about.jpeg" alt="Developer Picture"
+                            class="w-full h-full object-cover">
+                    </div>
+                    <div class="absolute bottom-2 right-4 bg-blue-600 text-white p-2 rounded-full shadow-lg">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <div class="flex-1">
+                    <h1 class="text-4xl font-black text-gray-800 tracking-tight mb-2">Hasnain Rada</h1>
+                    <p class="text-blue-600 font-bold uppercase tracking-widest text-sm mb-6">Lead Developer & UI/UX
+                        Architect</p>
+
+                    <p class="text-gray-500 leading-relaxed mb-8 text-lg">
+                        Specialized in building robust digital infrastructures for educational institutions.
+                        Focused on creating secure, accessible, and visually engaging platforms that streamline
+                        academic operations.
+                    </p>
+
+                    <!-- Skills Grid -->
+                    <div class="mb-8">
+                        <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest mb-4">Core Technologies
+                        </h3>
+                        <div class="flex flex-wrap gap-2 justify-center md:justify-start">
+                            <span
+                                class="px-3 py-1 bg-orange-100 text-orange-600 rounded-full text-sm font-bold border border-orange-200"><i
+                                    class="fa-brands fa-html5 mr-1"></i> HTML5</span>
+                            <span
+                                class="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm font-bold border border-blue-200"><i
+                                    class="fa-brands fa-css3-alt mr-1"></i> CSS3</span>
+                            <span
+                                class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-bold border border-yellow-200"><i
+                                    class="fa-brands fa-js mr-1"></i> JavaScript</span>
+                            <span
+                                class="px-3 py-1 bg-cyan-100 text-cyan-600 rounded-full text-sm font-bold border border-cyan-200"><i
+                                    class="fa-solid fa-wind mr-1"></i> Tailwind</span>
+                            <span
+                                class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-bold border border-green-200"><i
+                                    class="fa-solid fa-database mr-1"></i> Database</span>
+                        </div>
+                    </div>
+
+                    <!-- Contact Buttons -->
+                    <div class="border-t border-gray-100 pt-8">
+                        <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest mb-4">Connect</h3>
+                        <div class="flex flex-wrap gap-3 justify-center md:justify-start">
+                            <a href="mailto:hassaninrada@gmail.com"
+                                class="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black transition font-semibold">
+                                <i class="fa-solid fa-envelope"></i> Email
+                            </a>
+                            <a href="https://wa.me/923302951359"
+                                class="flex items-center gap-2 px-4 py-2 bg-[#25D366] text-white rounded-lg hover:opacity-90 transition font-semibold">
+                                <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                            </a>
+
+                            <a href="https://github.com/hassaninrada?tab=repositories"
+                                class="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-200 transition font-semibold">
+                                <i class="fa-brands fa-github"></i> GitHub
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="text-center mt-12 text-gray-400 text-xs font-bold uppercase tracking-widest opacity-60">
+        Engineered for Excellence © 2026
+    </footer>
+
+    <script src='developer-credit.js'></script>
+</body>
+
+</html>
