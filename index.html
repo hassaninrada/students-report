@@ -116,7 +116,7 @@
                 <h2 class="text-2xl font-bold text-gray-800 mb-3">Student & Parent Portal</h2>
                 <p class="text-gray-500 text-sm leading-relaxed mb-8">Securely search and download official progress
                     reports. Requires student CID or Registration details.</p>
-                <button id="enterParent"
+                <button id="enterParent" onclick="showParentPortal()"
                     class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-green-200 flex items-center justify-center gap-2 group">
                     <span>Enter Search Portal</span>
                     <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
@@ -140,10 +140,10 @@
                     manage attendance, and update performance remarks.</p>
 
                 <div class="flex gap-4 mb-4">
-                    <button id="enterTeacherPrimary"
+                    <button id="enterTeacherPrimary" onclick="teacherEntry('Primary')"
                         class="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl text-sm transition-all">Primary
                         Wing</button>
-                    <button id="enterTeacherSecondary"
+                    <button id="enterTeacherSecondary" onclick="teacherEntry('Secondary')"
                         class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition-all">Secondary
                         Wing</button>
                 </div>
@@ -366,8 +366,12 @@
         </div>
     </section>
 
-    <script type="module">
-        import { supabase } from "./supabase-init.js";
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase Initialization
+        const supabaseUrl = 'https://fsmxmfkydxbqnofsojsq.supabase.co';
+        const supabaseKey = 'sb_publishable__Z2iWVPqz6Xw947CH_YLUg_YhoLeseh';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         const teacherPrimaryPass = "primary123";
         const teacherSecondaryPass = "secondary123";
@@ -387,8 +391,16 @@
         function getResultTerm(m, term) { let max = termMax[term]; return m >= 0.4 * max ? "Pass" : "Fail"; }
 
         let pendingMode = "";
-        document.getElementById("enterTeacherPrimary").addEventListener("click", () => { pendingMode = "Primary"; showPassInput(); });
-        document.getElementById("enterTeacherSecondary").addEventListener("click", () => { pendingMode = "Secondary"; showPassInput(); });
+
+        window.teacherEntry = function (mode) {
+            pendingMode = mode;
+            showPassInput();
+        };
+
+        window.showParentPortal = function () {
+            document.getElementById("roleGate").classList.add("hidden");
+            document.getElementById("parentPortal").classList.remove("hidden");
+        };
 
         function showPassInput() {
             document.getElementById("passArea").classList.remove("hidden");
@@ -432,7 +444,7 @@
                             wing, marks: {}, attendance: 0, remarks: "", voted_primary: false, voted_secondary: false
                         };
                     }).filter(s => s.cid && s.name);
-                    const { error } = await supabase.from('students').upsert(toInsert, { onConflict: 'cid' });
+                    const { error } = await supabaseClient.from('students').upsert(toInsert, { onConflict: 'cid' });
                     if (error) throw error;
                     status.textContent = "✅ Upload Successful!";
                     updateTeacherStudentList();
@@ -456,19 +468,19 @@
         document.getElementById("addStudent").onclick = async () => {
             const data = { name: document.getElementById("tName").value, cls: document.getElementById("tClass").value, sec: document.getElementById("tSection").value, cid: document.getElementById("tCID").value, wing: currentTeacherMode, marks: {}, attendance: 0, remarks: "", voted_primary: false, voted_secondary: false };
             if (!data.name || !data.cid) return alert("Missing Info");
-            const { error } = await supabase.from('students').insert([data]);
+            const { error } = await supabaseClient.from('students').insert([data]);
             if (error) alert(error.message); else { alert("Added"); updateTeacherStudentList(); }
         };
 
         document.getElementById("deleteStudent").onclick = async () => {
             if (!confirm("Delete?")) return;
             const cid = document.getElementById("tCID").value;
-            await supabase.from('students').delete().eq('cid', cid);
+            await supabaseClient.from('students').delete().eq('cid', cid);
             updateTeacherStudentList();
         };
 
         async function updateTeacherStudentList() {
-            const { data } = await supabase.from('students').select('*').eq('wing', currentTeacherMode);
+            const { data } = await supabaseClient.from('students').select('*').eq('wing', currentTeacherMode);
             const sel = document.getElementById("selectStudentTeacher"); sel.innerHTML = "";
             data?.forEach(s => { sel.innerHTML += `<option value="${s.cid}">${s.name} (${s.cid})</option>`; });
         }
@@ -479,24 +491,23 @@
 
         document.getElementById("saveMarks").onclick = async () => {
             const cid = document.getElementById("selectStudentTeacher").value;
-            const res = await supabase.from('students').select('*').eq('cid', cid).single();
+            const res = await supabaseClient.from('students').select('*').eq('cid', cid).single();
             const student = res.data;
             const sub = document.getElementById("selectSubject").value;
             const term = document.getElementById("selectTerm").value;
             student.marks[sub] = student.marks[sub] || {};
             student.marks[sub][term] = Number(document.getElementById("inputMarks").value);
-            await supabase.from('students').update({ marks: student.marks, attendance: Number(document.getElementById("inputAttendance").value), remarks: document.getElementById("inputRemarks").value }).eq('cid', cid);
+            await supabaseClient.from('students').update({ marks: student.marks, attendance: Number(document.getElementById("inputAttendance").value), remarks: document.getElementById("inputRemarks").value }).eq('cid', cid);
             alert("Saved");
         };
 
         // PARENT PORTAL SEARCH
-        document.getElementById("enterParent").onclick = () => { document.getElementById("roleGate").classList.add("hidden"); document.getElementById("parentPortal").classList.remove("hidden"); };
         document.getElementById("ppSearchBtn").onclick = async () => {
             const name = document.getElementById("ppName").value;
             const cls = document.getElementById("ppClass").value;
             const sec = document.getElementById("ppSection").value;
 
-            let query = supabase.from('students').select('*');
+            let query = supabaseClient.from('students').select('*');
 
             if (name) query = query.ilike('name', `%${name}%`);
             if (cls) query = query.eq('cls', cls);
@@ -517,7 +528,7 @@
         };
 
         async function displayStudent(cid) {
-            const { data: s } = await supabase.from('students').select('*').eq('cid', cid).single();
+            const { data: s } = await supabaseClient.from('students').select('*').eq('cid', cid).single();
             if (!s) return;
             document.getElementById("ppResultsWrap").classList.remove("hidden");
 
