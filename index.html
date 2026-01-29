@@ -449,9 +449,16 @@
                 <div class="card">
                     <h3 class="card-header">Grading & Assessment</h3>
                     <div class="grid md:grid-cols-2 gap-4 mb-4">
-                        <div><label class="text-xs font-bold text-gray-500">SELECT STUDENT (Class Order)</label><select
-                                id="selectStudentTeacher"
-                                class="border rounded-lg px-3 py-2 w-full bg-blue-50/50"></select></div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500">SELECT STUDENT</label>
+                            <input type="text" id="studentFilter" placeholder="🔎 Filter by Name or ID..."
+                                class="border rounded-t-lg px-3 py-2 w-full text-sm bg-blue-50 border-b-0 focus:ring-0" />
+                            <select id="selectStudentTeacher"
+                                class="border rounded-b-lg px-3 py-2 w-full bg-white text-sm focus:ring-0 mt-0" size="5"
+                                style="height: 120px;"></select>
+                            <div class="text-[10px] text-gray-400 text-right mt-1">Found: <span
+                                    id="studentCount">0</span></div>
+                        </div>
                         <div><label class="text-xs font-bold text-gray-500">SUBJECT</label><select id="selectSubject"
                                 class="border rounded-lg px-3 py-2 w-full bg-blue-50/50"></select></div>
                     </div>
@@ -709,12 +716,35 @@
             }
         };
 
+        let allTeacherStudents = [];
+
         async function updateTeacherStudentList() {
+            const sel = document.getElementById("selectStudentTeacher");
+            sel.innerHTML = `<option>Loading records...</option>`;
+
             // Sort by Class, then Section, then CID
             const { data } = await supabaseClient.from('students').select('*').eq('wing', currentTeacherMode).order('cls', { ascending: true }).order('sec', { ascending: true }).order('cid', { ascending: true });
-            const sel = document.getElementById("selectStudentTeacher");
-            sel.innerHTML = `<option value="">Select Student...</option>` + data.map(s => `<option value="${s.cid}">${s.cls}-${s.sec} | ${s.name} (ID: ${s.cid})</option>`).join('');
+
+            allTeacherStudents = data || [];
+            renderStudentOptions();
         }
+
+        function renderStudentOptions(filterText = "") {
+            const sel = document.getElementById("selectStudentTeacher");
+            const lowerFilter = filterText.toLowerCase();
+
+            const filtered = allTeacherStudents.filter(s =>
+                (s.name && s.name.toLowerCase().includes(lowerFilter)) ||
+                (s.cid && String(s.cid).includes(lowerFilter)) ||
+                (s.cls && s.cls.toLowerCase().includes(lowerFilter))
+            );
+
+            sel.innerHTML = filtered.map(s => `<option value="${s.cid}">${s.cls}-${s.sec} | ${s.name} (${s.cid})</option>`).join('');
+            document.getElementById("studentCount").textContent = filtered.length;
+        }
+
+        document.getElementById("studentFilter").addEventListener("input", (e) => renderStudentOptions(e.target.value));
+
         function updateTeacherSubjectDropdown() { document.getElementById("selectSubject").innerHTML = teacherSubjects.map(s => `<option>${s}</option>`).join(''); }
 
         document.getElementById("saveMarks").onclick = async () => {
