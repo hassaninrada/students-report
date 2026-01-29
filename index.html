@@ -93,7 +93,8 @@
 
             #printControls,
             #roleGate,
-            header {
+            header,
+            #printControlsBtns {
                 display: none !important;
             }
         }
@@ -214,8 +215,14 @@
             <div id="pdfContent" class="bg-white mx-auto relative"
                 style="width: 210mm; min-height: 297mm; padding: 40px; border: 3px double #1E5631; font-family: 'Times New Roman', serif;">
 
+                <!-- WATERMARK -->
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                    <img src="https://nasraschool.edu.pk/wp-content/uploads/2024/03/logo.webp"
+                        class="opacity-5 w-2/3 grayscale" style="transform: rotate(-10deg);" />
+                </div>
+
                 <!-- HEADER -->
-                <div class="text-center mb-8 relative">
+                <div class="text-center mb-8 relative z-10">
                     <div class="flex justify-center items-center gap-6">
                         <img src="https://nasraschool.edu.pk/wp-content/uploads/2024/03/logo.webp"
                             class="w-24 drop-shadow-sm" style="filter: brightness(1.1);">
@@ -225,13 +232,14 @@
                             <p class="font-bold text-gray-700 text-lg">Saddar Campus</p>
                             <h2 class="text-2xl font-bold mt-3 underline decoration-double underline-offset-4">Student
                                 Progress Report</h2>
-                            <p class="font-bold text-md mt-1 italic text-gray-600">Result of Mid Term</p>
+                            <p class="font-bold text-md mt-1 italic text-gray-600">Annual Academic Session 2024-2025</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- META INFO -->
-                <div class="flex justify-between text-sm font-bold mb-8 border-b-2 border-[#1E5631] pb-4 px-4">
+                <div
+                    class="flex justify-between text-sm font-bold mb-8 border-b-2 border-[#1E5631] pb-4 px-4 relative z-10">
                     <div class="space-y-2">
                         <p class="text-lg">Class: <span id="rClass" class="font-normal ml-2"></span></p>
                         <p class="text-lg">Name: <span id="rName"
@@ -244,24 +252,30 @@
                 </div>
 
                 <!-- TABLE -->
-                <div class="mb-8">
-                    <table class="w-full border-collapse border border-[#1E5631] text-center text-sm">
+                <div class="mb-8 relative z-10">
+                    <table class="w-full border-collapse border border-[#1E5631] text-center text-xs">
                         <thead>
                             <tr class="bg-gray-50">
-                                <th class="border border-[#1E5631] p-2" rowspan="2" style="width: 20%;">Subjects</th>
-                                <th class="border border-[#1E5631] p-2" colspan="2">1st Assessment</th>
-                                <th class="border border-[#1E5631] p-2" colspan="2">Mid Term</th>
-                                <th class="border border-[#1E5631] p-2 bg-gray-100" colspan="2">Overall</th>
-                                <th class="border border-[#1E5631] p-2" rowspan="2">Grade</th>
-                                <th class="border border-[#1E5631] p-2" rowspan="2">Remarks</th>
+                                <th class="border border-[#1E5631] p-1" rowspan="2" style="width: 15%;">Subjects</th>
+                                <th class="border border-[#1E5631] p-1" colspan="2">1st Assess</th>
+                                <th class="border border-[#1E5631] p-1" colspan="2">Mid Term</th>
+                                <th class="border border-[#1E5631] p-1 bg-blue-50/50" colspan="2">2nd Assess</th>
+                                <th class="border border-[#1E5631] p-1 bg-yellow-50/50" colspan="2">Final Term</th>
+                                <th class="border border-[#1E5631] p-1 bg-gray-100" colspan="2">Overall</th>
+                                <th class="border border-[#1E5631] p-1" rowspan="2">Grade</th>
+                                <th class="border border-[#1E5631] p-1" rowspan="2">Remarks</th>
                             </tr>
-                            <tr class="bg-gray-50 text-xs">
-                                <th class="border border-[#1E5631] p-1">Max. Marks</th>
-                                <th class="border border-[#1E5631] p-1">Obtained</th>
-                                <th class="border border-[#1E5631] p-1">Max. Marks</th>
-                                <th class="border border-[#1E5631] p-1">Obtained</th>
-                                <th class="border border-[#1E5631] p-1 bg-gray-100">Total</th>
-                                <th class="border border-[#1E5631] p-1 bg-gray-100">Obtained</th>
+                            <tr class="bg-gray-50 text-[10px] uppercase font-bold">
+                                <th class="border border-[#1E5631] p-1">Mx</th>
+                                <th class="border border-[#1E5631] p-1">Ob</th>
+                                <th class="border border-[#1E5631] p-1">Mx</th>
+                                <th class="border border-[#1E5631] p-1">Ob</th>
+                                <th class="border border-[#1E5631] p-1 bg-blue-50/50">Mx</th>
+                                <th class="border border-[#1E5631] p-1 bg-blue-50/50">Ob</th>
+                                <th class="border border-[#1E5631] p-1 bg-yellow-50/50">Mx</th>
+                                <th class="border border-[#1E5631] p-1 bg-yellow-50/50">Ob</th>
+                                <th class="border border-[#1E5631] p-1 bg-gray-100">Tot</th>
+                                <th class="border border-[#1E5631] p-1 bg-gray-100">Obt</th>
                             </tr>
                         </thead>
                         <tbody id="rTableBody" class="font-semibold text-gray-800">
@@ -270,10 +284,14 @@
                         <tfoot>
                             <tr class="font-bold bg-gray-100 border-t-2 border-[#1E5631]">
                                 <td class="border border-[#1E5631] p-2 text-right pr-4">TOTAL</td>
-                                <td class="border border-[#1E5631] p-2 bg-gray-50"></td>
-                                <td class="border border-[#1E5631] p-2 bg-gray-50"></td>
-                                <td class="border border-[#1E5631] p-2 bg-gray-50"></td>
-                                <td class="border border-[#1E5631] p-2 bg-gray-50"></td>
+                                <td class="border border-[#1E5631] p-1 bg-gray-50"></td>
+                                <td class="border border-[#1E5631] p-1 bg-gray-50"></td>
+                                <td class="border border-[#1E5631] p-1 bg-gray-50"></td>
+                                <td class="border border-[#1E5631] p-1 bg-gray-50"></td>
+                                <td class="border border-[#1E5631] p-1 bg-gray-50"></td>
+                                <td class="border border-[#1E5631] p-1 bg-gray-50"></td>
+                                <td class="border border-[#1E5631] p-1 bg-gray-50"></td>
+                                <td class="border border-[#1E5631] p-1 bg-gray-50"></td>
                                 <td class="border border-[#1E5631] p-2 text-center" id="rGrandTotalMax"></td>
                                 <td class="border border-[#1E5631] p-2 text-center" id="rGrandTotalObt"></td>
                                 <td class="border border-[#1E5631] p-2 bg-gray-50" colspan="2"></td>
@@ -283,7 +301,7 @@
                 </div>
 
                 <!-- STATS & FOOTER -->
-                <div class="grid grid-cols-2 gap-12 mb-8 px-4 text-sm">
+                <div class="grid grid-cols-2 gap-12 mb-8 px-4 text-sm relative z-10">
                     <div class="space-y-3">
                         <div class="flex justify-between border-b border-gray-300 pb-1">
                             <span class="font-bold">Percentage:</span>
@@ -307,13 +325,14 @@
                     </div>
                 </div>
 
-                <div class="mb-16 px-4">
+                <div class="mb-16 px-4 relative z-10">
                     <p class="text-sm font-bold mb-1 underline">Comments:</p>
                     <p id="rComments" class="border-b border-black text-sm italic py-2 font-serif text-gray-700"></p>
                 </div>
 
                 <!-- SIGNATURES -->
-                <div class="flex justify-between items-end mt-20 px-8 mb-12 text-center text-xs font-bold">
+                <div
+                    class="flex justify-between items-end mt-20 px-8 mb-12 text-center text-xs font-bold relative z-10">
                     <div>
                         <div class="w-40 border-b border-black mb-2"></div>
                         <p>Class Teacher's Signature</p>
@@ -329,7 +348,7 @@
                 </div>
 
                 <!-- GRADING KEY -->
-                <div class="mb-4">
+                <div class="mb-4 relative z-10">
                     <table class="w-2/3 mx-auto border-collapse border border-black text-[10px] text-center">
                         <thead class="bg-gray-100">
                             <tr>
@@ -375,7 +394,8 @@
                     014451-GEN</div>
 
                 <!-- REQUESTED FOOTER TEXT -->
-                <div class="text-center mt-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                <div
+                    class="text-center mt-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest relative z-10">
                     BUILT BY HASSANINRADA
                 </div>
             </div>
@@ -426,36 +446,49 @@
                 <div class="card">
                     <h3 class="card-header">Grading & Assessment</h3>
                     <div class="grid md:grid-cols-2 gap-4 mb-4">
-                        <div><label class="text-xs font-bold text-gray-500">SELECT STUDENT</label><select
-                                id="selectStudentTeacher" class="border rounded-lg px-3 py-2 w-full"></select></div>
+                        <div><label class="text-xs font-bold text-gray-500">SELECT STUDENT (Class Order)</label><select
+                                id="selectStudentTeacher"
+                                class="border rounded-lg px-3 py-2 w-full bg-blue-50/50"></select></div>
                         <div><label class="text-xs font-bold text-gray-500">SUBJECT</label><select id="selectSubject"
-                                class="border rounded-lg px-3 py-2 w-full"></select></div>
+                                class="border rounded-lg px-3 py-2 w-full bg-blue-50/50"></select></div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4 mb-4 bg-gray-50 p-4 rounded-xl border border-blue-200">
+                    <div
+                        class="grid grid-cols-2 lg:grid-cols-2 gap-4 mb-4 bg-gray-50 p-4 rounded-xl border border-blue-200">
                         <div>
-                            <label class="text-xs font-bold text-blue-800 block mb-1">1st Assessment (Max 50)</label>
+                            <label class="text-xs font-bold text-blue-800 block mb-1">1st Assessment (Max 25)</label>
                             <input type="number" id="inputMarks1" placeholder="Obt. Marks"
-                                class="border-2 border-blue-100 rounded-lg px-3 py-2 w-full font-bold text-blue-900 focus:border-blue-500" />
+                                class="border-2 border-blue-100 rounded-lg px-3 py-2 w-full font-bold text-blue-900 focus:border-blue-500 transition-colors" />
                         </div>
                         <div>
-                            <label class="text-xs font-bold text-blue-800 block mb-1">Mid Term (Max 50)</label>
+                            <label class="text-xs font-bold text-blue-800 block mb-1">Mid Term (Max 75)</label>
                             <input type="number" id="inputMarks2" placeholder="Obt. Marks"
-                                class="border-2 border-blue-100 rounded-lg px-3 py-2 w-full font-bold text-blue-900 focus:border-blue-500" />
+                                class="border-2 border-blue-100 rounded-lg px-3 py-2 w-full font-bold text-blue-900 focus:border-blue-500 transition-colors" />
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-blue-800 block mb-1">2nd Assessment (Max 25)</label>
+                            <input type="number" id="inputMarks3" placeholder="Obt. Marks"
+                                class="border-2 border-blue-100 rounded-lg px-3 py-2 w-full font-bold text-blue-900 focus:border-blue-500 transition-colors" />
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-blue-800 block mb-1">Final Term (Max 75)</label>
+                            <input type="number" id="inputMarks4" placeholder="Obt. Marks"
+                                class="border-2 border-blue-100 rounded-lg px-3 py-2 w-full font-bold text-blue-900 focus:border-blue-500 transition-colors" />
                         </div>
                     </div>
 
                     <div class="mb-4">
                         <label class="text-xs font-bold text-gray-500">Attendance %</label>
                         <input type="number" id="inputAttendance" placeholder="Current %"
-                            class="border rounded-lg px-3 py-2 w-full" />
+                            class="border rounded-lg px-3 py-2 w-full font-mono text-sm" />
                     </div>
 
-                    <textarea id="inputRemarks" class="border rounded-lg px-3 py-2 w-full mb-4"
-                        placeholder="Student performance remarks..."></textarea>
+                    <textarea id="inputRemarks" class="border rounded-lg px-4 py-3 w-full mb-4 text-sm" rows="3"
+                        placeholder="Enter student performance remarks..."></textarea>
                     <button id="saveMarks"
-                        class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 w-full font-bold shadow-lg shadow-indigo-100 uppercase tracking-widest text-xs">Save
-                        Result Card</button>
+                        class="bg-green-600 text-white px-6 py-4 rounded-xl hover:bg-green-700 w-full font-bold text-sm uppercase tracking-widest shadow-lg shadow-green-100 transition-all active:scale-95">
+                        <i class="fa-solid fa-save mr-2"></i> Save Result Card
+                    </button>
                 </div>
             </div>
 
@@ -484,8 +517,8 @@
         let currentTeacherMode = "";
         let teacherSubjects = JSON.parse(localStorage.getItem("teacherSubjects") || JSON.stringify(["English", "Mathematics", "Urdu", "Science", "Islamiyat", "Computer Science", "Social Studies"]));
 
-        // Term Max Mapping (Assuming 50 for 1st/Mid so Total is 100 for simplicity in this report format)
-        const termMax = { "First Term": 50, "Mid Term": 50, "Second Term": 50, "Final Term": 100 };
+        // Term Max Mapping (Total 200)
+        const termMax = { "First Term": 25, "Mid Term": 75, "Second Term": 25, "Final Term": 75 };
 
         window.goHome = function () {
             document.querySelectorAll("section").forEach(s => s.classList.add("hidden"));
@@ -493,6 +526,7 @@
         };
 
         function getGrade(marks, max) {
+            if (max === 0) return "-";
             const pc = (marks / max) * 100;
             if (pc >= 85) return "A+"; if (pc >= 75) return "A"; if (pc >= 65) return "B"; if (pc >= 55) return "C"; return "F";
         }
@@ -516,8 +550,8 @@
             } else { document.getElementById("passError").classList.remove("hidden"); }
         });
 
-        // TEACHER FUNCTIONS UNCHANGED
-        document.getElementById("processBulkBtn").addEventListener("click", async () => { /* Simplified for brevity, same logic */ alert("Bulk feature active"); });
+        // TEACHER FUNCTIONS
+        document.getElementById("processBulkBtn").addEventListener("click", async () => { alert("Bulk feature is active but requires backend processing implementation."); });
         function renderSubjects() {
             const c = document.getElementById("subjectContainer"); c.innerHTML = "";
             teacherSubjects.forEach((sub, i) => {
@@ -531,21 +565,23 @@
             const data = { name: document.getElementById("tName").value, cls: document.getElementById("tClass").value, sec: document.getElementById("tSection").value, cid: document.getElementById("tCID").value, wing: currentTeacherMode, marks: {}, attendance: 0, remarks: "" };
             if (!data.name || !data.cid) return alert("Missing Info");
             await supabaseClient.from('students').insert([data]);
-            updateTeacherStudentList(); alert("Added");
+            updateTeacherStudentList(); alert("Student Added!");
         };
 
         async function updateTeacherStudentList() {
-            const { data } = await supabaseClient.from('students').select('*').eq('wing', currentTeacherMode);
-            document.getElementById("selectStudentTeacher").innerHTML = data.map(s => `<option value="${s.cid}">${s.name}</option>`).join('');
+            // Sort by Class, then Section, then CID
+            const { data } = await supabaseClient.from('students').select('*').eq('wing', currentTeacherMode).order('cls', { ascending: true }).order('sec', { ascending: true }).order('cid', { ascending: true });
+            const sel = document.getElementById("selectStudentTeacher");
+            sel.innerHTML = `<option value="">Select Student...</option>` + data.map(s => `<option value="${s.cid}">${s.cls}-${s.sec} | ${s.name} (ID: ${s.cid})</option>`).join('');
         }
         function updateTeacherSubjectDropdown() { document.getElementById("selectSubject").innerHTML = teacherSubjects.map(s => `<option>${s}</option>`).join(''); }
 
         document.getElementById("saveMarks").onclick = async () => {
             const cid = document.getElementById("selectStudentTeacher").value;
-            if (!cid) return alert("Please select a student first.");
+            if (!cid) return alert("Please select a student");
 
             const btn = document.getElementById("saveMarks");
-            btn.textContent = "Saving...";
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
 
             try {
                 const { data } = await supabaseClient.from('students').select('*').eq('cid', cid).single();
@@ -554,33 +590,35 @@
 
                 s.marks[sub] = s.marks[sub] || {};
 
-                // Update 1st Assessment
                 const m1 = document.getElementById("inputMarks1").value;
-                if (m1 !== "") s.marks[sub]["First Term"] = Number(m1);
-
-                // Update Mid Term
                 const m2 = document.getElementById("inputMarks2").value;
+                const m3 = document.getElementById("inputMarks3").value;
+                const m4 = document.getElementById("inputMarks4").value;
+
+                if (m1 !== "") s.marks[sub]["First Term"] = Number(m1);
                 if (m2 !== "") s.marks[sub]["Mid Term"] = Number(m2);
+                if (m3 !== "") s.marks[sub]["Second Term"] = Number(m3);
+                if (m4 !== "") s.marks[sub]["Final Term"] = Number(m4);
 
-                const att = document.getElementById("inputAttendance").value;
-                const rem = document.getElementById("inputRemarks").value;
+                await supabaseClient.from('students').update({
+                    marks: s.marks,
+                    attendance: Number(document.getElementById("inputAttendance").value || s.attendance),
+                    remarks: document.getElementById("inputRemarks").value || s.remarks
+                }).eq('cid', cid);
 
-                const updatePayload = { marks: s.marks };
-                if (att) updatePayload.attendance = Number(att);
-                if (rem) updatePayload.remarks = rem;
-
-                await supabaseClient.from('students').update(updatePayload).eq('cid', cid);
-
-                alert("✅ Marks Updated Successfully!");
+                alert("✅ Marks Updated!");
+                // Clear inputs
                 document.getElementById("inputMarks1").value = "";
                 document.getElementById("inputMarks2").value = "";
-            } catch (e) {
-                alert("Error: " + e.message);
+                document.getElementById("inputMarks3").value = "";
+                document.getElementById("inputMarks4").value = "";
+            } catch (err) {
+                alert("Error: " + err.message);
             }
-            btn.textContent = "SAVE RESULT CARD";
+            btn.innerHTML = '<i class="fa-solid fa-save mr-2"></i> Save Result Card';
         };
 
-        // NEW DISPLAY LOGIC
+        // SEARCH & REPORT GENERATION
         document.getElementById("ppSearchBtn").onclick = async () => {
             const name = document.getElementById("ppName").value;
             const cls = document.getElementById("ppClass").value;
@@ -619,11 +657,16 @@
                 teacherSubjects.forEach(sub => {
                     const m1 = s.marks[sub]?.["First Term"] || 0;
                     const m2 = s.marks[sub]?.["Mid Term"] || 0;
+                    const m3 = s.marks[sub]?.["Second Term"] || 0;
+                    const m4 = s.marks[sub]?.["Final Term"] || 0;
+
                     const max1 = termMax["First Term"];
                     const max2 = termMax["Mid Term"];
+                    const max3 = termMax["Second Term"];
+                    const max4 = termMax["Final Term"];
 
-                    const totalMax = max1 + max2;
-                    const totalObt = m1 + m2;
+                    const totalMax = max1 + max2 + max3 + max4;
+                    const totalObt = m1 + m2 + m3 + m4;
 
                     grandMax += totalMax;
                     grandObt += totalObt;
@@ -631,17 +674,27 @@
                     const grade = getGrade(totalObt, totalMax);
                     const remarks = getRemarks(grade);
 
+                    // Helper checks to show '-' if undefined/empty in DB, but calc uses 0
+                    const show1 = s.marks[sub]?.["First Term"] !== undefined ? m1 : '-';
+                    const show2 = s.marks[sub]?.["Mid Term"] !== undefined ? m2 : '-';
+                    const show3 = s.marks[sub]?.["Second Term"] !== undefined ? m3 : '-';
+                    const show4 = s.marks[sub]?.["Final Term"] !== undefined ? m4 : '-';
+
                     tbody.innerHTML += `
-                        <tr class="hover:bg-green-50">
-                            <td class="border border-[#1E5631] p-2 text-left font-bold text-[#1E5631]">${sub}</td>
-                            <td class="border border-[#1E5631] p-2">${max1}</td>
-                            <td class="border border-[#1E5631] p-2 font-bold">${m1 || '-'}</td>
-                            <td class="border border-[#1E5631] p-2">${max2}</td>
-                            <td class="border border-[#1E5631] p-2 font-bold">${m2 || '-'}</td>
-                            <td class="border border-[#1E5631] p-2 bg-gray-50 font-bold">${totalMax}</td>
-                            <td class="border border-[#1E5631] p-2 bg-gray-50 font-black text-[#1E5631]">${totalObt}</td>
-                            <td class="border border-[#1E5631] p-2 font-bold">${grade}</td>
-                            <td class="border border-[#1E5631] p-2 text-xs italic">${remarks}</td>
+                        <tr class="hover:bg-green-50 text-[11px] md:text-sm">
+                            <td class="border border-[#1E5631] p-1 text-left font-bold text-[#1E5631] whitespace-nowrap">${sub}</td>
+                            <td class="border border-[#1E5631] p-1 text-gray-500">${max1}</td>
+                            <td class="border border-[#1E5631] p-1 font-bold">${show1}</td>
+                            <td class="border border-[#1E5631] p-1 text-gray-500">${max2}</td>
+                            <td class="border border-[#1E5631] p-1 font-bold">${show2}</td>
+                            <td class="border border-[#1E5631] p-1 text-gray-500 bg-blue-50/20">${max3}</td>
+                            <td class="border border-[#1E5631] p-1 font-bold bg-blue-50/20">${show3}</td>
+                            <td class="border border-[#1E5631] p-1 text-gray-500 bg-yellow-50/20">${max4}</td>
+                            <td class="border border-[#1E5631] p-1 font-bold bg-yellow-50/20">${show4}</td>
+                            <td class="border border-[#1E5631] p-1 bg-gray-100 font-bold">${totalMax}</td>
+                            <td class="border border-[#1E5631] p-1 bg-gray-100 font-black text-[#1E5631]">${totalObt}</td>
+                            <td class="border border-[#1E5631] p-1 font-bold">${grade}</td>
+                            <td class="border border-[#1E5631] p-1 text-[10px] italic whitespace-nowrap">${remarks}</td>
                         </tr>
                     `;
                 });
@@ -652,9 +705,8 @@
                 const pc = grandMax > 0 ? ((grandObt / grandMax) * 100).toFixed(2) : 0;
                 document.getElementById("rPercentage").textContent = pc + "%";
                 document.getElementById("rOverallGrade").textContent = getGrade(grandObt, grandMax);
-                document.getElementById("rComments").textContent = s.remarks || "Work hard to improve your grades further. Consistent effort is key.";
+                document.getElementById("rComments").textContent = s.remarks || "Keep up the good work.";
 
-                // Attendance Calc (Total 124 assumed from image)
                 const attPc = s.attendance || 0;
                 const attended = Math.round((attPc / 100) * 124);
                 document.getElementById("rAttendance").textContent = attended;
