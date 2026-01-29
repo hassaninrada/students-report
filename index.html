@@ -607,10 +607,18 @@
                         const rowsToInsert = chunk.map(row => {
                             // Normalize keys (Case insensitive check)
                             // Helper to find key case-insensitively
-                            const findKey = (obj, key) => Object.keys(obj).find(k => k.toLowerCase() === key.toLowerCase());
+                            // Helper to find key case-insensitively and with partial matching support
+                            const findKey = (obj, target) => {
+                                const keys = Object.keys(obj);
+                                // Try exact match first
+                                let found = keys.find(k => k.toLowerCase().trim() === target.toLowerCase());
+                                if (found) return found;
+                                // Try partial match (if key starts with or contains target)
+                                return keys.find(k => k.toLowerCase().replace(/[^a-z0-9]/g, '').includes(target.toLowerCase().replace(/[^a-z0-9]/g, '')));
+                            };
 
-                            const nameKey = findKey(row, 'name');
-                            const cidKey = findKey(row, 'cid') || findKey(row, 'gr') || findKey(row, 'id');
+                            const nameKey = findKey(row, 'name') || findKey(row, 'student');
+                            const cidKey = findKey(row, 'cid') || findKey(row, 'gr') || findKey(row, 'id') || findKey(row, 'roll');
                             const clsKey = findKey(row, 'class') || findKey(row, 'cls');
                             const secKey = findKey(row, 'section') || findKey(row, 'sec');
 
