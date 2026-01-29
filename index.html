@@ -113,6 +113,9 @@
             </div>
         </div>
         <div class="flex gap-3">
+            <a href="about-student.html"
+                class="bg-blue-600 px-3 py-1 rounded text-sm hover:bg-blue-500 transition text-white no-underline flex items-center">About
+                Student</a>
             <button onclick="goHome()" class="bg-blue-600 px-3 py-1 rounded text-sm hover:bg-blue-500 transition">Portal
                 Home</button>
         </div>
@@ -566,6 +569,29 @@
             if (!data.name || !data.cid) return alert("Missing Info");
             await supabaseClient.from('students').insert([data]);
             updateTeacherStudentList(); alert("Student Added!");
+        };
+
+        document.getElementById("deleteStudent").onclick = async () => {
+            const name = document.getElementById("tName").value;
+            const cid = document.getElementById("tCID").value;
+
+            if (!cid) return alert("Please enter the CID number of the student to delete.");
+
+            if (confirm(`Are you sure you want to PERMANENTLY DELETE student ${name ? name + ' ' : ''}with CID: ${cid}? This cannot be undone.`)) {
+                const { error } = await supabaseClient.from('students').delete().eq('cid', cid).eq('wing', currentTeacherMode);
+
+                if (error) {
+                    alert("Error deleting: " + error.message);
+                } else {
+                    alert("Student deleted successfully.");
+                    // Clear inputs
+                    document.getElementById("tName").value = "";
+                    document.getElementById("tClass").value = "";
+                    document.getElementById("tSection").value = "";
+                    document.getElementById("tCID").value = "";
+                    updateTeacherStudentList();
+                }
+            }
         };
 
         async function updateTeacherStudentList() {
