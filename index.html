@@ -198,9 +198,9 @@
                     class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-bold uppercase text-sm">Find
                     Records</button>
             </div>
-            <div class="mt-4">
-                <select id="ppSelectStudent" class="border p-2 rounded w-full md:w-1/2"></select>
-            </div>
+            <!-- Select removed/hidden as per request, auto-shows result -->
+            <div id="ppSelectStudent" class="hidden"></div>
+        </div>
         </div>
 
         <div id="ppResultsWrap" class="hidden fadeIn">
@@ -221,7 +221,7 @@
                 <!-- WATERMARK -->
                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
                     <img src="https://nasraschool.edu.pk/wp-content/uploads/2024/03/logo.webp"
-                        class="opacity-5 w-2/3 grayscale" style="transform: rotate(-10deg);" />
+                        class="opacity-10 w-2/3 grayscale" style="transform: scale(0.9);" />
                 </div>
 
                 <!-- HEADER -->
@@ -269,15 +269,15 @@
                                 <th class="border border-[#1E5631] p-1" rowspan="2">Remarks</th>
                             </tr>
                             <tr class="bg-gray-50 text-[10px] uppercase font-bold">
-                                <th class="border border-[#1E5631] p-1">Mx</th>
-                                <th class="border border-[#1E5631] p-1">Ob</th>
-                                <th class="border border-[#1E5631] p-1">Mx</th>
-                                <th class="border border-[#1E5631] p-1">Ob</th>
-                                <th class="border border-[#1E5631] p-1 bg-blue-50/50">Mx</th>
-                                <th class="border border-[#1E5631] p-1 bg-blue-50/50">Ob</th>
-                                <th class="border border-[#1E5631] p-1 bg-yellow-50/50">Mx</th>
-                                <th class="border border-[#1E5631] p-1 bg-yellow-50/50">Ob</th>
-                                <th class="border border-[#1E5631] p-1 bg-gray-100">Tot</th>
+                                <th class="border border-[#1E5631] p-1">Max</th>
+                                <th class="border border-[#1E5631] p-1">Obt</th>
+                                <th class="border border-[#1E5631] p-1">Max</th>
+                                <th class="border border-[#1E5631] p-1">Obt</th>
+                                <th class="border border-[#1E5631] p-1 bg-blue-50/50">Max</th>
+                                <th class="border border-[#1E5631] p-1 bg-blue-50/50">Obt</th>
+                                <th class="border border-[#1E5631] p-1 bg-yellow-50/50">Max</th>
+                                <th class="border border-[#1E5631] p-1 bg-yellow-50/50">Obt</th>
+                                <th class="border border-[#1E5631] p-1 bg-gray-100">Total</th>
                                 <th class="border border-[#1E5631] p-1 bg-gray-100">Obt</th>
                             </tr>
                         </thead>
@@ -645,6 +645,7 @@
         };
 
         // SEARCH & REPORT GENERATION
+        // SEARCH & REPORT GENERATION
         document.getElementById("ppSearchBtn").onclick = async () => {
             const name = document.getElementById("ppName").value;
             const cls = document.getElementById("ppClass").value;
@@ -656,20 +657,15 @@
             if (sec) query = query.eq('sec', sec);
 
             const { data, error } = await query;
-            if (error) return alert("Error finding student");
+            if (error || !data || data.length === 0) return alert("No student found matching these details.");
 
-            const sel = document.getElementById("ppSelectStudent");
-            sel.innerHTML = `<option value="">Select Student...</option>`;
-            data.forEach(s => sel.innerHTML += `<option value="${s.cid}">${s.name} (${s.cls})</option>`);
-        };
-
-        document.getElementById("ppSelectStudent").onchange = async (e) => {
-            if (!e.target.value) return;
-            const cid = e.target.value;
-            const { data: s } = await supabaseClient.from('students').select('*').eq('cid', cid).single();
+            // AUTO-SELECT FIRST RESULT
+            const s = data[0];
 
             if (s) {
                 document.getElementById("ppResultsWrap").classList.remove("hidden");
+                // Hide search controls for cleaner view? Optional.
+
                 document.getElementById("rName").textContent = s.name;
                 document.getElementById("rClass").textContent = `${s.cls} - ${s.sec}`;
                 document.getElementById("rCID").textContent = s.cid;
@@ -680,11 +676,21 @@
                 let grandMax = 0;
                 let grandObt = 0;
 
-                teacherSubjects.forEach(sub => {
-                    const m1 = s.marks[sub]?.["First Term"] || 0;
-                    const m2 = s.marks[sub]?.["Mid Term"] || 0;
-                    const m3 = s.marks[sub]?.["Second Term"] || 0;
-                    const m4 = s.marks[sub]?.["Final Term"] || 0;
+                // FILTER: Only show subjects present in student's marks
+                const subjectKeys = Object.keys(s.marks || {});
+
+                if (subjectKeys.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="13" class="p-4 text-center italic text-gray-500">No marks entries found for this student yet.</td></tr>`;
+                }
+
+                subjectKeys.forEach(sub => {
+                    const markData = s.marks[sub];
+                    if (!markData) return;
+
+                    const m1 = markData["First Term"] || 0;
+                    const m2 = markData["Mid Term"] || 0;
+                    const m3 = markData["Second Term"] || 0;
+                    const m4 = markData["Final Term"] || 0;
 
                     const max1 = termMax["First Term"];
                     const max2 = termMax["Mid Term"];
@@ -700,15 +706,15 @@
                     const grade = getGrade(totalObt, totalMax);
                     const remarks = getRemarks(grade);
 
-                    // Helper checks to show '-' if undefined/empty in DB, but calc uses 0
-                    const show1 = s.marks[sub]?.["First Term"] !== undefined ? m1 : '-';
-                    const show2 = s.marks[sub]?.["Mid Term"] !== undefined ? m2 : '-';
-                    const show3 = s.marks[sub]?.["Second Term"] !== undefined ? m3 : '-';
-                    const show4 = s.marks[sub]?.["Final Term"] !== undefined ? m4 : '-';
+                    // Display helpers
+                    const show1 = markData["First Term"] !== undefined ? m1 : '-';
+                    const show2 = markData["Mid Term"] !== undefined ? m2 : '-';
+                    const show3 = markData["Second Term"] !== undefined ? m3 : '-';
+                    const show4 = markData["Final Term"] !== undefined ? m4 : '-';
 
                     tbody.innerHTML += `
                         <tr class="hover:bg-green-50 text-[11px] md:text-sm">
-                            <td class="border border-[#1E5631] p-1 text-left font-bold text-[#1E5631] whitespace-nowrap">${sub}</td>
+                            <td class="border border-[#1E5631] p-1 text-left font-bold text-[#1E5631] whitespace-nowrap uppercase">${sub}</td>
                             <td class="border border-[#1E5631] p-1 text-gray-500">${max1}</td>
                             <td class="border border-[#1E5631] p-1 font-bold">${show1}</td>
                             <td class="border border-[#1E5631] p-1 text-gray-500">${max2}</td>
