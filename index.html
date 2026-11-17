@@ -511,7 +511,11 @@
 
     
     <script>
-        import { supabase } from "./supabase-init.js";
+        
+        <script type="module">
+    import { supabase } from "./supabase-init.js";
+    window.supabaseClient = supabase;
+</script>
         const teacherPrimaryPass = "primary123";
         const teacherSecondaryPass = "secondary123";
         const teacherPassword = "teacher123";
