@@ -175,6 +175,10 @@
                 <div id="passArea" class="hidden animate-fade pt-4 border-t border-gray-100">
                     <input type="password" id="teacherPassInput" placeholder="Enter Faculty Security PIN"
                         class="w-full bg-gray-100 border-none rounded-xl px-4 py-4 mb-3 focus:ring-2 focus:ring-blue-500 transition-all font-mono" />
+                    <input type="email" id="teacherAuthEmail" placeholder="Supabase staff email"
+                        class="w-full bg-gray-100 border-none rounded-xl px-4 py-3 mb-3 focus:ring-2 focus:ring-blue-500 transition-all" autocomplete="username" />
+                    <input type="password" id="teacherAuthPassword" placeholder="Supabase account password"
+                        class="w-full bg-gray-100 border-none rounded-xl px-4 py-3 mb-3 focus:ring-2 focus:ring-blue-500 transition-all" autocomplete="current-password" />
                     <button id="submitPass"
                         class="w-full bg-gray-800 hover:bg-black text-white font-bold py-3 rounded-xl shadow-lg transition-all cursor-pointer touch-manipulation">Verify
                         Credentials</button>
@@ -543,15 +547,45 @@
         window.showParentPortal = function () { document.getElementById("roleGate").classList.add("hidden"); document.getElementById("parentPortal").classList.remove("hidden"); };
         function showPassInput() { document.getElementById("passArea").classList.remove("hidden"); document.getElementById("teacherPassInput").focus(); }
 
-        document.getElementById("submitPass").addEventListener("click", () => {
-            const val = document.getElementById("teacherPassInput").value;
-            if ((pendingMode === "Primary" && val === teacherPrimaryPass) || (pendingMode === "Secondary" && val === teacherSecondaryPass) || val === teacherPassword) {
-                currentTeacherMode = pendingMode;
-                document.getElementById("portalWingLabel").textContent = currentTeacherMode;
-                document.getElementById("roleGate").classList.add("hidden");
-                document.getElementById("teacherPortal").classList.remove("hidden");
-                renderSubjects(); updateTeacherStudentList(); updateTeacherSubjectDropdown();
-            } else { document.getElementById("passError").classList.remove("hidden"); }
+        document.getElementById("submitPass").addEventListener("click", async () => {
+            const pin = document.getElementById("teacherPassInput").value;
+            const email = document.getElementById("teacherAuthEmail").value.trim();
+            const password = document.getElementById("teacherAuthPassword").value;
+            const pinValid =
+                (pendingMode === "Primary" && pin === teacherPrimaryPass) ||
+                (pendingMode === "Secondary" && pin === teacherSecondaryPass) ||
+                pin === teacherPassword;
+
+            const errorBox = document.getElementById("passError");
+            errorBox.classList.remove("hidden");
+            errorBox.textContent = "Verifying Supabase staff account...";
+
+            if (!pinValid || !email || !password) {
+                errorBox.textContent = "Enter the correct Faculty PIN, staff email, and Supabase password.";
+                return;
+            }
+
+            const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (authError || !authData.user) {
+                errorBox.textContent = authError ? authError.message : "Supabase sign-in failed.";
+                return;
+            }
+
+            const { data: allowed, error: roleError } = await supabaseClient.rpc("is_nasra_staff");
+            if (roleError || allowed !== true) {
+                await supabaseClient.auth.signOut();
+                errorBox.textContent = roleError ? roleError.message : "This account is not registered as active Nasra staff.";
+                return;
+            }
+
+            errorBox.classList.add("hidden");
+            currentTeacherMode = pendingMode;
+            document.getElementById("portalWingLabel").textContent = currentTeacherMode;
+            document.getElementById("roleGate").classList.add("hidden");
+            document.getElementById("teacherPortal").classList.remove("hidden");
+            renderSubjects();
+            await updateTeacherStudentList();
+            updateTeacherSubjectDropdown();
         });
 
         // TEACHER FUNCTIONS
